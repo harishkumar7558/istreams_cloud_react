@@ -148,16 +148,22 @@ function RfqDetailsPage() {
     lastSubmissionDate: quotation?.ENT_DATE || "",
     offerValidTill: quotation?.EXPECTED_DATE || "",
   });
-  const [position, setPosition] = useState({
-    x: window.innerWidth - 300, // Adjust based on the div's width
-    y: window.innerHeight - 300, // Adjust based on the div's height
+    const [position, setPosition] = useState({
+    x: window.innerWidth - 60, // Start at bottom-right (icon only)
+    y: window.innerHeight - 60,
   });
-   const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { fetchImageUrl } = useImageAPI();
 
   useEffect(() => {
     fetchImage();
   }, [userData]);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      setIsExpanded(true);
+    }
+  }, [items]);
 
   const fetchImage = async () => {
     try {
@@ -408,15 +414,14 @@ function RfqDetailsPage() {
 
    const handleMouseEnter = () => {
     // Get window dimensions
-    const maxX = window.innerWidth - 300; // Subtract width of the div
-    const maxY = window.innerHeight - 300; // Subtract height of the div
-
+    const maxX = window.innerWidth - (isExpanded ? 300 : 60);
+    const maxY = window.innerHeight - (isExpanded ? 100 : 60);
+    
     // Generate random positions
     const newX = Math.random() * maxX;
     const newY = Math.random() * maxY;
     
     setPosition({ x: newX, y: newY });
-    setIsExpanded(true);
   };
 
   const renderItemCardsView = (items) => {
@@ -1135,29 +1140,27 @@ function RfqDetailsPage() {
                 </Card>
               </motion.div>
 
-              {/* --- Total Amount Section with Mouse Interaction --- */}
-                 <div className="relative">
-      <div
-        className={`flex items-center justify-between gap-3 ${
-          isExpanded ? "w-[280px]" : "w-[50px]"
-        } bg-gradient-to-r from-green-500 to-teal-500 rounded-full px-5 py-2 shadow-lg text-sm font-semibold text-white absolute transition-all duration-300`}
-        style={{
-          transform: `translate(${position.x}px, ${position.y}px)`,
-          zIndex: 10,
-        }}
-        onMouseEnter={handleMouseEnter}
-      >
-        <div className="flex items-center gap-2">
-          <Coins className="w-5 h-5" />
-          {isExpanded && <span>Total Amount</span>}
-        </div>
-        {isExpanded && (
-          <span className="text-lg font-bold">
-            {netValue.toFixed(2)} {currencySymbol}
-          </span>
-        )}
-      </div>
-    </div>
+            <div className="fixed bottom-4 right-4 z-50">
+            <div
+              className={`flex items-center justify-center ${
+                isExpanded ? "justify-between gap-3 w-[280px]" : "w-12"
+              } bg-gradient-to-r from-green-500 to-teal-500 rounded-full px-5 py-2 shadow-lg text-sm font-semibold text-white transition-all duration-300`}
+              style={{
+                transform: `translate(${position.x}px, ${position.y}px)`,
+              }}
+              onMouseEnter={handleMouseEnter}
+            >
+              <div className="flex items-center gap-2">
+                <Coins className="w-5 h-5" />
+                {isExpanded && <span>Total Amount</span>}
+              </div>
+              {isExpanded && (
+                <span className="text-lg font-bold">
+                  {quotationSummary.netValue.toFixed(2)} {userData?.companyCurrSymbol}
+                </span>
+              )}
+            </div>
+          </div>
 
               {/* --- Vendor Details Card --- */}
               <motion.div>
