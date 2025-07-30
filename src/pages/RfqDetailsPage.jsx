@@ -148,7 +148,11 @@ function RfqDetailsPage() {
     lastSubmissionDate: quotation?.ENT_DATE || "",
     offerValidTill: quotation?.EXPECTED_DATE || "",
   });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({
+    x: window.innerWidth - 300, // Adjust based on the div's width
+    y: window.innerHeight - 300, // Adjust based on the div's height
+  });
+   const [isExpanded, setIsExpanded] = useState(false);
   const { fetchImageUrl } = useImageAPI();
 
   useEffect(() => {
@@ -402,16 +406,17 @@ function RfqDetailsPage() {
     navigate("/rfq-offcial");
   };
 
-  const handleMouseEnter = () => {
+   const handleMouseEnter = () => {
     // Get window dimensions
-    const maxX = window.innerWidth - 300; // Subtract approximate width of Total Amount div
-    const maxY = window.innerHeight - 100; // Subtract approximate height of Total Amount div
-    
+    const maxX = window.innerWidth - 300; // Subtract width of the div
+    const maxY = window.innerHeight - 300; // Subtract height of the div
+
     // Generate random positions
     const newX = Math.random() * maxX;
     const newY = Math.random() * maxY;
     
     setPosition({ x: newX, y: newY });
+    setIsExpanded(true);
   };
 
   const renderItemCardsView = (items) => {
@@ -1131,24 +1136,28 @@ function RfqDetailsPage() {
               </motion.div>
 
               {/* --- Total Amount Section with Mouse Interaction --- */}
-              <div className="relative">
-                <div
-                  className="flex items-center justify-between gap-3 w-[280px] bg-gradient-to-r from-green-500 to-teal-500 rounded-full px-5 py-2 shadow-lg text-sm font-semibold text-white absolute transition-all duration-300"
-                  style={{ 
-                    transform: `translate(${position.x}px, ${position.y}px)`,
-                    zIndex: 10
-                  }}
-                  onMouseEnter={handleMouseEnter}
-                >
-                  <div className="flex items-center gap-2">
-                    <Coins className="w-5 h-5" />
-                    <span>Total Amount</span>
-                  </div>
-                  <span className="text-lg font-bold">
-                    {quotationSummary.netValue.toFixed(2)} {userData.companyCurrSymbol}
-                  </span>
-                </div>
-              </div>
+                 <div className="relative">
+      <div
+        className={`flex items-center justify-between gap-3 ${
+          isExpanded ? "w-[280px]" : "w-[50px]"
+        } bg-gradient-to-r from-green-500 to-teal-500 rounded-full px-5 py-2 shadow-lg text-sm font-semibold text-white absolute transition-all duration-300`}
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px)`,
+          zIndex: 10,
+        }}
+        onMouseEnter={handleMouseEnter}
+      >
+        <div className="flex items-center gap-2">
+          <Coins className="w-5 h-5" />
+          {isExpanded && <span>Total Amount</span>}
+        </div>
+        {isExpanded && (
+          <span className="text-lg font-bold">
+            {netValue.toFixed(2)} {currencySymbol}
+          </span>
+        )}
+      </div>
+    </div>
 
               {/* --- Vendor Details Card --- */}
               <motion.div>
